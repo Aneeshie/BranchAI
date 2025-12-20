@@ -1,9 +1,12 @@
 import "@/styles/globals.css";
 
 import { type Metadata } from "next";
-import { Geist } from "next/font/google";
-
+import { Geist, Nunito_Sans } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
 import { TRPCReactProvider } from "@/trpc/react";
+import { cn } from "@/lib/utils";
+
+const nunitoSans = Nunito_Sans({ variable: "--font-sans" });
 
 export const metadata: Metadata = {
   title: "Create T3 App",
@@ -20,10 +23,12 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${geist.variable}`}>
-      <body>
-        <TRPCReactProvider>{children}</TRPCReactProvider>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en" className={cn(geist.variable, nunitoSans.variable)}>
+        <body>
+          <TRPCReactProvider>{children}</TRPCReactProvider>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
