@@ -5,6 +5,7 @@ import { Geist, Nunito_Sans } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { TRPCReactProvider } from "@/trpc/react";
 import { cn } from "@/lib/utils";
+import { Toaster } from "@/components/ui/sonner";
 
 const nunitoSans = Nunito_Sans({ variable: "--font-sans" });
 
@@ -27,6 +28,7 @@ export default function RootLayout({
       <html lang="en" className={cn(geist.variable, nunitoSans.variable)}>
         <body>
           <TRPCReactProvider>{children}</TRPCReactProvider>
+          <Toaster richColors />
         </body>
       </html>
     </ClerkProvider>
