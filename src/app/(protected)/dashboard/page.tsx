@@ -1,13 +1,11 @@
-"use client"
-import { useUser } from "@clerk/nextjs"
-
+"use client";
+import useProject from "@/hooks/use-project";
+import { useUser } from "@clerk/nextjs";
 
 const DashboardPage = () => {
-    const { user } = useUser()
+  const { project } = useProject();
 
-    return (
-        <div>{`Current Logged in user: ${user?.fullName}`}</div>
-    )
-}
+  return <div>{`Current project: ${project?.name}`}</div>;
+};
 
-export default DashboardPage
+export default DashboardPage;

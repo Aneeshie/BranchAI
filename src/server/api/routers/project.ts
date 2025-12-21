@@ -45,4 +45,29 @@ export const projectRouter = createTRPCRouter({
 
       return project;
     }),
+
+  getProjects: protectedProcedure.query(async ({ ctx }) => {
+    const clerkUserId = ctx.user.userId;
+
+    const dbUser = await ctx.db.user.findUnique({
+      where: { clerkId: clerkUserId! },
+    });
+
+    if (!dbUser) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "User not synced with database",
+      });
+    }
+
+    return ctx.db.project.findMany({
+      where: {
+        users: {
+          some: {
+            userId: dbUser.id,
+          },
+        },
+      },
+    });
+  }),
 });
