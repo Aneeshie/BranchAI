@@ -14,7 +14,6 @@ export async function POST(req: NextRequest) {
 
         if (eventType === "user.created") {
             const { id, email_addresses, first_name, last_name } = evt.data
-
             await db.user.upsert({
                 where: { clerkId: id },
                 update: {},
