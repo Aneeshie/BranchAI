@@ -2,6 +2,7 @@
 import useProject from "@/hooks/use-project";
 import { IconBrandGithub, IconExternalLink } from "@tabler/icons-react";
 import Link from "next/link";
+import CommitLog from "./commit-log";
 
 const DashboardPage = () => {
   const { project } = useProject();
@@ -40,7 +41,9 @@ const DashboardPage = () => {
         </div>
       </div>
 
-      <div className="mt-8">Commit Log</div>
+      <div className="mt-8">
+        <CommitLog />
+      </div>
     </div>
   );
 };

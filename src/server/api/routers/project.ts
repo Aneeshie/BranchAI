@@ -1,6 +1,7 @@
 import z from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
+import { pollCommits } from "@/lib/github";
 
 export const projectRouter = createTRPCRouter({
   createProjectRoute: protectedProcedure
@@ -27,23 +28,41 @@ export const projectRouter = createTRPCRouter({
         });
       }
 
-      const project = await ctx.db.project.create({
-        data: {
-          githubUrl: input.githubUrl,
-          name: input.name,
-          users: {
-            create: {
-              user: {
-                connect: {
-                  id: dbUser.id,
+      try {
+        const project = await ctx.db.project.create({
+          data: {
+            githubUrl: input.githubUrl,
+            name: input.name,
+            users: {
+              create: {
+                user: {
+                  connect: {
+                    id: dbUser.id,
+                  },
                 },
               },
             },
           },
-        },
-      });
+        });
+        await pollCommits(project.id);
+        return project;
+      } catch (error: any) {
+        if (
+          error?.code === "P2002" &&
+          error?.meta?.target?.includes("githubUrl")
+        ) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "A project with this GitHub URL already exists.",
+          });
+        }
 
-      return project;
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to create project.",
+          cause: error,
+        });
+      }
     }),
 
   getProjects: protectedProcedure.query(async ({ ctx }) => {
@@ -70,4 +89,15 @@ export const projectRouter = createTRPCRouter({
       },
     });
   }),
+  getCommits: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      return await ctx.db.commit.findMany({
+        where: { projectId: input.projectId },
+      });
+    }),
 });
